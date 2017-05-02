@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-15T08:55:49.958Z</updated>
+  <updated>2017-05-02T09:01:52.415Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,53 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>python 爬虫爬取暴走漫画官网 jpg图片</title>
+    <link href="http://yoursite.com/2017/05/02/python-%E7%88%AC%E8%99%AB%E7%88%AC%E5%8F%96%E6%9A%B4%E8%B5%B0%E6%BC%AB%E7%94%BB%E5%AE%98%E7%BD%91-jpg%E5%9B%BE%E7%89%87/"/>
+    <id>http://yoursite.com/2017/05/02/python-爬虫爬取暴走漫画官网-jpg图片/</id>
+    <published>2017-05-02T07:13:27.000Z</published>
+    <updated>2017-05-02T09:01:52.415Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="爬取需要工具及运行环境"><a href="#爬取需要工具及运行环境" class="headerlink" title="爬取需要工具及运行环境"></a>爬取需要工具及运行环境</h1><ul>
+<li>python3.6</li>
+<li>beautifulsoup4 库</li>
+<li>urllib.request 库</li>
+<li>chrome 浏览器</li>
+<li>vim 编译器</li>
+<li>archlinux 操作系统</li>
+</ul>
+<hr>
+<h1 id="分析需要解析的的URL"><a href="#分析需要解析的的URL" class="headerlink" title="分析需要解析的的URL"></a>分析需要解析的的URL</h1><ul>
+<li>进入暴走漫画官网，进入“趣图-JPG杂烩首页”，可获取URL信息为”<a href="http://baozoumanhua.com/catalogs/jpg" target="_blank" rel="external">http://baozoumanhua.com/catalogs/jpg</a>“<br>点击下一页获取URL信息为“<a href="http://baozoumanhua.com/catalogs/jpg?page=2&amp;sv=1493709301”" target="_blank" rel="external">http://baozoumanhua.com/catalogs/jpg?page=2&amp;sv=1493709301”</a><br>找到规律，只改变 page=2 这个数字就行<br><strong>注意“sv=149379301”这个数值可能会变,不同时请做相应修改</strong></li>
+</ul>
+<h2 id="请求代码"><a href="#请求代码" class="headerlink" title="请求代码"></a>请求代码</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">urls = <span class="keyword">set</span>() # 建立储存需要爬取的<span class="keyword">URL</span>集合</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> rang(<span class="number">1</span>, <span class="number">3</span>):</div><div class="line">    <span class="keyword">url</span> = <span class="string">'http://baozoumanhua.com/catalogs/gif?page='</span> + <span class="keyword">str</span>(i) + <span class="string">'sv=1493709301'</span> # 获取<span class="keyword">URL</span></div><div class="line">    urls.add(<span class="keyword">url</span>) # 将<span class="keyword">URL</span>添加到待爬取的<span class="keyword">URL</span>集合中</div></pre></td></tr></table></figure>
+<hr>
+<h1 id="分析图片规律"><a href="#分析图片规律" class="headerlink" title="分析图片规律"></a>分析图片规律</h1><ul>
+<li>右键需要爬取的图片，点击“检查”，发现标签”img“中的 “data-original”属性存放图片的URL连接</li>
+</ul>
+<h2 id="解析的代码"><a href="#解析的代码" class="headerlink" title="解析的代码"></a>解析的代码</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">res_data = [] <span class="comment"># 存放图片的URL</span></div><div class="line"></div><div class="line"><span class="comment"># 模拟浏览器</span></div><div class="line">user_agent = <span class="string">'Mozilla/5.0 (X11; linux x86_64) AppleWebKit/537.36'</span></div><div class="line">headers = &#123;<span class="string">'User-Agent'</span>: user_agent&#125;</div><div class="line"></div><div class="line"><span class="comment"># 从URL集合中取出一个URL，进行请求解析</span></div><div class="line"><span class="keyword">for</span> url <span class="keyword">in</span> <span class="symbol">urls:</span></div><div class="line">    <span class="comment"># 下载页面</span></div><div class="line">    req = urllib.request.Request(url, headers = headers)</div><div class="line">    response = urllib.request.urlopen(req)</div><div class="line">    html = response.read().decode(<span class="string">'utf-8'</span>) <span class="comment"># 将代码格式化为UTF-8</span></div><div class="line"></div><div class="line"><span class="comment"># 使用beautifulsoup 对 html 进行解析</span></div><div class="line">    soup = BeautifulSoup(html, <span class="string">'html.parse'</span>)</div><div class="line">    imgs = soup.findAll(<span class="string">'img'</span>，<span class="keyword">class</span><span class="number">_</span>=<span class="string">"lazy"</span>) <span class="comment"># 获取所有的&lt;img&gt; 标签信息</span></div><div class="line">    res_data += [img[<span class="string">'data-original'</span>] <span class="keyword">for</span> img <span class="keyword">in</span> imgs] <span class="comment"># 将图片的URL 存放到res_data列表中</span></div></pre></td></tr></table></figure>
+<hr>
+<h1 id="下载图片"><a href="#下载图片" class="headerlink" title="下载图片"></a>下载图片</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> <span class="selector-tag">i</span> <span class="keyword">in</span> range(len(res_data)):</div><div class="line">    filename = str(i) + <span class="string">'.jpg'</span></div><div class="line">	urllib<span class="selector-class">.request</span><span class="selector-class">.urlretrieve</span>(res_data[i], <span class="string">'../bzmh/download_jpg/'</span> + filename)</div></pre></td></tr></table></figure>
+<hr>
+<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># -*- coding:utf-8 -*-</span></div><div class="line">import urllib.request</div><div class="line"><span class="keyword">from</span> bs4 import BeautifulSoup</div><div class="line"></div><div class="line"><span class="meta"># 目标URL</span></div><div class="line">urls = <span class="keyword">set</span>() <span class="meta"># 存放需要爬取的URL</span></div><div class="line">res_data = [] <span class="meta"># 存放图片的URL</span></div><div class="line"><span class="function"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="title">range</span>(<span class="params"><span class="number">1</span>, <span class="number">3</span></span>):</span></div><div class="line">    url = <span class="string">'http://baozoumanhua.com/?page='</span> + str(i) + <span class="string">'gk&amp;sv=1489920902'</span></div><div class="line">    urls.<span class="keyword">add</span>(url)</div><div class="line"></div><div class="line"><span class="meta"># 模拟浏览器</span></div><div class="line">user_agent = <span class="string">'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'</span></div><div class="line">headers = &#123;<span class="string">'User-Agent'</span>: user_agent&#125;</div><div class="line"></div><div class="line"><span class="meta"># 从URL集合中获得一个URL进行解析</span></div><div class="line"><span class="keyword">for</span> url <span class="keyword">in</span> urls:</div><div class="line">    req = urllib.request.Request(url, headers=headers)</div><div class="line">    <span class="meta"># 下载页面</span></div><div class="line">    response = urllib.request.urlopen(req)</div><div class="line">    html = response.read().decode(<span class="string">'utf-8'</span>)  <span class="meta"># 代码格式UTF-8</span></div><div class="line">    <span class="meta"># 解析网页</span></div><div class="line">    soup = BeautifulSoup(html, <span class="string">'html.parser'</span>)</div><div class="line">    imgs = soup.findAll(<span class="string">'img'</span>, class_=<span class="string">"lazy"</span>) <span class="meta"># 获取所有的&lt;img&gt; 标签信息</span></div><div class="line">    res_data += [img[<span class="string">'data-original'</span>]<span class="keyword">for</span> img <span class="keyword">in</span> imgs] <span class="meta"># 将图片的URL 存放到res_data列表中</span></div><div class="line"></div><div class="line"><span class="meta"># 下载图片</span></div><div class="line"><span class="function"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="title">range</span>(<span class="params">len(res_data</span>)):</span></div><div class="line">    filename = str(i) + <span class="string">".jpg"</span></div><div class="line">    urllib.request.urlretrieve(res_data[i], <span class="string">'../bzmh/download_jpg/'</span> + filename)  <span class="meta"># 下载图片内容</span></div></pre></td></tr></table></figure>
+<hr>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;爬取需要工具及运行环境&quot;&gt;&lt;a href=&quot;#爬取需要工具及运行环境&quot; class=&quot;headerlink&quot; title=&quot;爬取需要工具及运行环境&quot;&gt;&lt;/a&gt;爬取需要工具及运行环境&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;python3.6&lt;/li&gt;
+&lt;li&gt;beautiful
+    
+    </summary>
+    
+      <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
+    
+    
+      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+  </entry>
   
   <entry>
     <title>github+hexo 搭建个人博客</title>
@@ -106,7 +153,7 @@
     <link href="http://yoursite.com/2017/03/13/kali-linux-configuration/"/>
     <id>http://yoursite.com/2017/03/13/kali-linux-configuration/</id>
     <published>2017-03-13T13:35:40.000Z</published>
-    <updated>2017-03-16T14:26:36.031Z</updated>
+    <updated>2017-05-02T07:21:03.232Z</updated>
     
     <content type="html"><![CDATA[<h1 id="配置apt源文件"><a href="#配置apt源文件" class="headerlink" title="配置apt源文件"></a>配置apt源文件</h1><ul>
 <li><p>修改源文件</p>
