@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-05-16T08:00:06.204Z</updated>
+  <updated>2017-06-24T09:30:33.810Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,46 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>selenium 模拟登录163邮箱</title>
+    <link href="http://yoursite.com/2017/06/24/selenium-%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95163/"/>
+    <id>http://yoursite.com/2017/06/24/selenium-模拟登录163/</id>
+    <published>2017-06-24T08:42:17.000Z</published>
+    <updated>2017-06-24T09:30:33.810Z</updated>
+    
+    <content type="html"><![CDATA[<p>记录下简单使用selenium的过程</p>
+<h1 id="主要运行环境及库"><a href="#主要运行环境及库" class="headerlink" title="主要运行环境及库"></a>主要运行环境及库</h1><ul>
+<li>selenium 库</li>
+<li>webdriver (Chrome、Firefox等)</li>
+</ul>
+<h1 id="下载-webdriver并配置"><a href="#下载-webdriver并配置" class="headerlink" title="下载 webdriver并配置"></a>下载 webdriver并配置</h1><p>webdriver 下载连接如下</p>
+<ul>
+<li><a href="https://sites.google.com/a/chromium.org/chromedriver/downloads" target="_blank" rel="external">chrome</a></li>
+<li><a href="https://github.com/mozilla/geckodriver/release" target="_blank" rel="external">Firefox</a></li>
+</ul>
+<p>将下载好的webdriver 放入到/usr/bin/目录下，这样做的目的是调用时可以不指明路径</p>
+<h1 id="模拟登录163邮箱"><a href="#模拟登录163邮箱" class="headerlink" title="模拟登录163邮箱"></a>模拟登录163邮箱</h1><figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">browser = webdriver.Chrome()</div><div class="line"><span class="meta"># 最大化窗口</span></div><div class="line">browser.maximize_window()</div><div class="line">browser.<span class="keyword">get</span>(<span class="string">'http://mail.163.com/'</span>)</div><div class="line"><span class="meta"># 停2秒，等待页面加载完毕</span></div><div class="line">time.sleep(<span class="number">2</span>)</div></pre></td></tr></table></figure>
+<p>因为表单在iframe标签中，要想获取iframe中的内容需要从Frame跳转到iframe中<br><figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># 切换到登录表单</span></div><div class="line">browser.switch_to.frame(<span class="string">"x-URS-iframe"</span>)</div><div class="line"><span class="meta"># 填写用户名</span></div><div class="line">browser.find_element_by_name(<span class="string">"email"</span>).send_keys(username)</div><div class="line"><span class="meta"># 填写密码</span></div><div class="line">browser.find_element_by_name(<span class="string">"password"</span>).send_keys(password)</div><div class="line"><span class="meta"># 登录</span></div><div class="line">browser.find_element_by_id(<span class="string">"dologin"</span>).click()</div></pre></td></tr></table></figure></p>
+<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding=utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> re</div><div class="line"></div><div class="line"><span class="comment"># 用户名</span></div><div class="line">username = input(<span class="string">'请输入用户名\n &gt; '</span>)</div><div class="line"><span class="keyword">try</span>:</div><div class="line">    re.match(<span class="string">r'^((?!@163).)*$'</span>, username).group()</div><div class="line"><span class="keyword">except</span>:</div><div class="line">    username = re.sub(<span class="string">'@163.com$'</span>,<span class="string">''</span>,username)</div><div class="line"><span class="comment"># 密码</span></div><div class="line">password = input(<span class="string">'请输入密码\n &gt; '</span>)</div><div class="line"></div><div class="line">browser = webdriver.Chrome()</div><div class="line"><span class="comment"># 最大化窗口</span></div><div class="line">browser.maximize_window()</div><div class="line">browser.get(<span class="string">'http://mail.163.com/'</span>)</div><div class="line"><span class="comment"># 等待2秒，等待页面加载完毕</span></div><div class="line">time.sleep(<span class="number">2</span>)</div><div class="line"></div><div class="line"><span class="comment"># 切换到登录表单</span></div><div class="line">browser.switch_to.frame(<span class="string">"x-URS-iframe"</span>)</div><div class="line"><span class="comment"># 填写用户名</span></div><div class="line">browser.find_element_by_name(<span class="string">"email"</span>).send_keys(username)</div><div class="line"><span class="comment"># 填写密码</span></div><div class="line">browser.find_element_by_name(<span class="string">"password"</span>).send_keys(password)</div><div class="line"><span class="comment"># 登录</span></div><div class="line">browser.find_element_by_id(<span class="string">"dologin"</span>).click()</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录下简单使用selenium的过程&lt;/p&gt;
+&lt;h1 id=&quot;主要运行环境及库&quot;&gt;&lt;a href=&quot;#主要运行环境及库&quot; class=&quot;headerlink&quot; title=&quot;主要运行环境及库&quot;&gt;&lt;/a&gt;主要运行环境及库&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;selenium 库&lt;/li
+    
+    </summary>
+    
+      <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
+    
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="selenium" scheme="http://yoursite.com/tags/selenium/"/>
+    
+  </entry>
   
   <entry>
     <title>python 模拟登录知乎</title>
@@ -56,9 +96,9 @@
       <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
     
     
-      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
       <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -119,9 +159,9 @@
       <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
     
     
-      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
       <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -130,7 +170,7 @@
     <link href="http://yoursite.com/2017/05/03/python%E7%88%AC%E8%99%AB%E7%88%AC%E5%8F%96%E6%9A%B4%E8%B5%B0%E6%BC%AB%E7%94%BB%E5%AE%98%E7%BD%91GIF%E5%9B%BE/"/>
     <id>http://yoursite.com/2017/05/03/python爬虫爬取暴走漫画官网GIF图/</id>
     <published>2017-05-03T00:16:13.000Z</published>
-    <updated>2017-05-05T06:49:19.156Z</updated>
+    <updated>2017-05-05T06:49:19.157Z</updated>
     
     <content type="html"><![CDATA[<h1 id="爬取需要工具及运行环境"><a href="#爬取需要工具及运行环境" class="headerlink" title="爬取需要工具及运行环境"></a>爬取需要工具及运行环境</h1><ul>
 <li>python3.6</li>
@@ -167,9 +207,9 @@
       <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
     
     
-      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
       <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -215,9 +255,9 @@
       <category term="python 爬虫" scheme="http://yoursite.com/categories/python-%E7%88%AC%E8%99%AB/"/>
     
     
-      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
       <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -226,7 +266,7 @@
     <link href="http://yoursite.com/2017/03/14/hexo1/"/>
     <id>http://yoursite.com/2017/03/14/hexo1/</id>
     <published>2017-03-14T06:07:53.000Z</published>
-    <updated>2017-03-15T08:55:49.958Z</updated>
+    <updated>2017-03-15T08:55:49.959Z</updated>
     
     <content type="html"><![CDATA[<p>写这篇文章主要是为了记录我搭建个人博客的过程，途中经历很多困难并查询了许多资料，最终功夫不服有心人，经过一天的时间终于弄好了，废话不多说下面开搞。</p>
 <hr>
@@ -312,7 +352,7 @@
     <link href="http://yoursite.com/2017/03/13/kali-linux-configuration/"/>
     <id>http://yoursite.com/2017/03/13/kali-linux-configuration/</id>
     <published>2017-03-13T13:35:40.000Z</published>
-    <updated>2017-05-02T07:21:03.232Z</updated>
+    <updated>2017-05-02T07:21:03.233Z</updated>
     
     <content type="html"><![CDATA[<h1 id="配置apt源文件"><a href="#配置apt源文件" class="headerlink" title="配置apt源文件"></a>配置apt源文件</h1><ul>
 <li><p>修改源文件</p>
@@ -414,7 +454,7 @@
     <link href="http://yoursite.com/2017/03/13/xps-install-kali-linux/"/>
     <id>http://yoursite.com/2017/03/13/xps-install-kali-linux/</id>
     <published>2017-03-13T13:04:21.000Z</published>
-    <updated>2017-03-15T07:17:08.042Z</updated>
+    <updated>2017-03-15T07:17:08.043Z</updated>
     
     <content type="html"><![CDATA[<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><ul>
 <li>Dell XPS 13-9360</li>
