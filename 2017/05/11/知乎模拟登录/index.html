@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="学习笔记,python," />
+  <meta name="keywords" content="学习笔记,Python,爬虫,模拟登录,知乎," />
 
 
 
@@ -90,45 +90,45 @@
 <meta name="description" content="之前模拟登录pixiv时不需要验证码，知乎需要验证码，于是写这篇文章记录我学习模拟登录知乎的过程
 
 需要的工具及环境
-python 3.6
+Python 3.6
 requests 库
 pillow 库
 re 库
-chrome 浏览器
+Chrome 浏览器
 
 尝试登录打开知乎登录页面,按F12-&amp;gt;选中‘preserve log’,登录界面如图，点击提交，获得post数据和网址
-我们可以获得获得post url 地址1post_url =">
+我们可以获得获得post URL 地址1post_url =">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 模拟登录知乎">
+<meta property="og:title" content="Python 模拟登录知乎">
 <meta property="og:url" content="http://yoursite.com/2017/05/11/知乎模拟登录/index.html">
 <meta property="og:site_name" content="Nameless">
 <meta property="og:description" content="之前模拟登录pixiv时不需要验证码，知乎需要验证码，于是写这篇文章记录我学习模拟登录知乎的过程
 
 需要的工具及环境
-python 3.6
+Python 3.6
 requests 库
 pillow 库
 re 库
-chrome 浏览器
+Chrome 浏览器
 
 尝试登录打开知乎登录页面,按F12-&amp;gt;选中‘preserve log’,登录界面如图，点击提交，获得post数据和网址
-我们可以获得获得post url 地址1post_url =">
+我们可以获得获得post URL 地址1post_url =">
 <meta property="og:image" content="http://yoursite.com/images/python模拟登录知乎1.png">
 <meta property="og:image" content="http://yoursite.com/images/python模拟登录知乎2.png">
-<meta property="og:updated_time" content="2017-05-16T08:00:06.204Z">
+<meta property="og:updated_time" content="2017-07-08T03:08:30.132Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 模拟登录知乎">
+<meta name="twitter:title" content="Python 模拟登录知乎">
 <meta name="twitter:description" content="之前模拟登录pixiv时不需要验证码，知乎需要验证码，于是写这篇文章记录我学习模拟登录知乎的过程
 
 需要的工具及环境
-python 3.6
+Python 3.6
 requests 库
 pillow 库
 re 库
-chrome 浏览器
+Chrome 浏览器
 
 尝试登录打开知乎登录页面,按F12-&amp;gt;选中‘preserve log’,登录界面如图，点击提交，获得post数据和网址
-我们可以获得获得post url 地址1post_url =">
+我们可以获得获得post URL 地址1post_url =">
 <meta name="twitter:image" content="http://yoursite.com/images/python模拟登录知乎1.png">
 
 
@@ -163,7 +163,7 @@ chrome 浏览器
 
 
 
-  <title> python 模拟登录知乎 | Nameless </title>
+  <title> Python 模拟登录知乎 | Nameless </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -303,7 +303,7 @@ chrome 浏览器
             
             
               
-                python 模拟登录知乎
+                Python 模拟登录知乎
               
             
           </h1>
@@ -341,8 +341,8 @@ chrome 浏览器
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -379,14 +379,14 @@ chrome 浏览器
         <p>之前模拟登录pixiv时不需要验证码，知乎需要验证码，于是写这篇文章记录我学习模拟登录知乎的过程</p>
 <hr>
 <h1 id="需要的工具及环境"><a href="#需要的工具及环境" class="headerlink" title="需要的工具及环境"></a>需要的工具及环境</h1><ul>
-<li>python 3.6</li>
+<li>Python 3.6</li>
 <li>requests 库</li>
 <li>pillow 库</li>
 <li>re 库</li>
-<li>chrome 浏览器</li>
+<li>Chrome 浏览器</li>
 </ul>
 <h1 id="尝试登录"><a href="#尝试登录" class="headerlink" title="尝试登录"></a>尝试登录</h1><p>打开知乎<a href="https://www.zhihu.com" target="_blank" rel="external">登录页面</a>,按F12-&gt;选中‘preserve log’,登录界面如图，点击提交，获得post数据和网址<br><img src="/images/python模拟登录知乎1.png" alt=""></p>
-<p>我们可以获得获得post url 地址<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">post_url</span> = <span class="string">'https://www.zhihu.com/login/phone_num'</span> # post请求提交的URL</div></pre></td></tr></table></figure></p>
+<p>我们可以获得获得post URL 地址<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">post_url</span> = <span class="string">'https://www.zhihu.com/login/phone_num'</span> # post请求提交的URL</div></pre></td></tr></table></figure></p>
 <p>从post提交的数据看我们需要4个参数’xsrf’,’captcha’,’password’,’phone_num’，所以，我们构建提交的数据字典如下<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">datas</span> = &#123;</div><div class="line">        <span class="string">'_xsrf'</span>: <span class="string">''</span>,</div><div class="line">        <span class="string">'password'</span>: <span class="string">'your_password'</span>,</div><div class="line">        <span class="string">'captcha'</span>: <span class="string">''</span>,</div><div class="line">        <span class="string">'phone_num'</span>: <span class="string">'your_phonenumber'</span></div><div class="line">        &#125;</div></pre></td></tr></table></figure></p>
 <h1 id="获取验证码"><a href="#获取验证码" class="headerlink" title="获取验证码"></a>获取验证码</h1><p>右键点击验证码，查看源码，看到”img“标签下，src属性存在验证码的网址，鼠标移到src属性上即可查看源网址<br><img src="/images/python模拟登录知乎2.png" alt=""></p>
 <p>r 是当前时间的时间戳单位为毫秒，具体获得代码如下：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="attr">time</span> = str(int(time.time() * <span class="number">1000</span>))</div><div class="line"><span class="attr">captcha_url</span> = <span class="string">'http://www.zhihu.com/captcha.gif?r='</span> + time + <span class="string">"&amp;type=login"</span></div><div class="line"><span class="attr">captcha</span> = s.get(captcha_url)</div></pre></td></tr></table></figure></p>
@@ -422,7 +422,13 @@ chrome 浏览器
           
             <a href="/tags/学习笔记/" rel="tag"># 学习笔记</a>
           
-            <a href="/tags/python/" rel="tag"># python</a>
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/爬虫/" rel="tag"># 爬虫</a>
+          
+            <a href="/tags/模拟登录/" rel="tag"># 模拟登录</a>
+          
+            <a href="/tags/知乎/" rel="tag"># 知乎</a>
           
         </div>
       
@@ -519,7 +525,7 @@ chrome 浏览器
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -541,7 +547,7 @@ chrome 浏览器
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -250,6 +250,173 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/07/获取支付宝订单，并存储的数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="The One">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nameless">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/07/07/获取支付宝订单，并存储的数据库/" itemprop="url">
+                  Python爬虫模拟登录支付宝并获取订单信息
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-07T18:19:46+08:00">
+                2017-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本文仅学习交流使用，记录学习用webdriver模拟登录支付宝保存cookie，再用requests.session()加载cookie并用Xpath获取订单信息，将订单存储到MySQL数据库中的过程。</p>
+<h1 id="本机主要运行环境及库"><a href="#本机主要运行环境及库" class="headerlink" title="本机主要运行环境及库"></a>本机主要运行环境及库</h1><ul>
+<li>Arch Linux</li>
+<li>webdriver(Chrome或者FireFox)</li>
+<li>Python3.6</li>
+<li>selenium 库</li>
+<li>json 库</li>
+<li>requests 库</li>
+<li>lxml 库</li>
+<li>MySQLdb 库</li>
+</ul>
+<p>确保本机具有或类似的运行条件，webdriver 安装方法在<a href="https://zjhdota.github.io/2017/06/24/selenium-%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95163/" target="_blank" rel="external">selenium模拟登录163邮箱</a>中已经提到。<br>selenium、json、requests、lxml库都可以通过python的包管理工具PyPI安装。<br>Python2.x 的版本通过pip安装mysql-python 来连接MySQL数据库，Python3.x则需要通过pip安装mysqlclient来实现Python和MySQL的连接。</p>
+<h1 id="获取cookie"><a href="#获取cookie" class="headerlink" title="获取cookie"></a>获取cookie</h1><p>我们用webdriver登录支付宝来获取cookie，并用json使数据持久化。<br>首先获取支付宝登录页面的URL:<br><a href="https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Flab.alipay.com%2Fuser%2Fi.htm" target="_blank" rel="external">https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Flab.alipay.com%2Fuser%2Fi.htm</a><br>通过Chrome开发者工具获取用户名文本框的id属性、密码文本框的name属性、和登录按钮的id属性<br><img src="/images/alipay1.gif" alt=""></p>
+<p>部分代码如下:<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">driver = webdriver.Firefox()</div><div class="line">driver.maximize_window()</div><div class="line">driver.<span class="built_in">get</span>(<span class="string">'https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Fmy.alipay.com%2Fportal%2Fi.htm'</span>)</div><div class="line"><span class="comment"># 等待2秒页面加载完毕</span></div><div class="line"><span class="built_in">time</span>.sleep(<span class="number">2</span>)</div><div class="line">driver.find_element_by_id(<span class="string">'J-input-user'</span>).send_keys(<span class="string">'你的支付宝用户名'</span>) <span class="comment"># 输入用户名</span></div><div class="line">driver.find_element_by_name(<span class="string">'password_rsainput'</span>).send_keys(<span class="string">'你的支付宝密码'</span>) <span class="comment"># 输入密码</span></div><div class="line">driver.find_element_by_id(<span class="string">'J-login-btn'</span>).click() <span class="comment"># 点击登录按钮</span></div><div class="line"><span class="comment"># 获取cookie，并保存到本地</span></div><div class="line">cookies = driver.get_cookies()</div><div class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">'cookies'</span>,<span class="string">'w'</span>) <span class="keyword">as</span> f:</div><div class="line">    json.dump(cookies, f)</div><div class="line">f.<span class="built_in">close</span>()</div><div class="line">driver.<span class="built_in">close</span>()</div></pre></td></tr></table></figure></p>
+<h1 id="设置cookie"><a href="#设置cookie" class="headerlink" title="设置cookie"></a>设置cookie</h1><p>要用requests.session()请求网页进行爬取，所以我们就直接加载本地的cookie来请求网页</p>
+<p>部分代码如下:<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function">with <span class="title">open</span>(<span class="params"><span class="string">'cookies'</span>, <span class="string">'r'</span></span>) <span class="keyword">as</span> f:</span></div><div class="line">    cookies = json.load(f)</div><div class="line">    <span class="meta"># 将json存储的cookie 转化为dict，并更新session的coookie</span></div><div class="line">    <span class="keyword">for</span> cookie <span class="keyword">in</span> cookies:</div><div class="line">        c = &#123;cookie[<span class="string">'name'</span>]: cookie[<span class="string">'value'</span>]&#125;</div><div class="line">        session.cookies.update(c)</div></pre></td></tr></table></figure></p>
+<h1 id="获取数据"><a href="#获取数据" class="headerlink" title="获取数据"></a>获取数据</h1><p>采用lxml来解析网页，然后通过xpath来找到相应的数据，最后存储到各自list中，为的是之后存储到数据库方便</p>
+<p>部分代码如下：<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 获取交易记录界面</span></div><div class="line">html = self.session.<span class="built_in">get</span>(<span class="string">'https://consumeprod.alipay.com/record/standard.htm'</span>)</div><div class="line"><span class="comment"># 用lxml解析html</span></div><div class="line">selector= etree.HTML(html.<span class="keyword">text</span>)</div><div class="line"><span class="comment"># 获取最近20个交易数据</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">21</span>):</div><div class="line">    <span class="comment"># 获取流水号</span></div><div class="line">    <span class="built_in">number</span> = selector.xpath(<span class="string">'//*[@id="J-tradeNo-'</span>+str(i)+<span class="string">'"]/@title'</span>)</div><div class="line">    number_list.append(<span class="built_in">number</span>[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取交易时间</span></div><div class="line">    <span class="built_in">time</span> = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[2]/p[1]/text()'</span>)</div><div class="line">    time_list.append(<span class="built_in">time</span>[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取具体内容</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 交易成功的内容</span></div><div class="line">        content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/a/text()'</span>)</div><div class="line">        content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">    except:</div><div class="line">         <span class="comment"># 交易失败的内容</span></div><div class="line">        content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/text()'</span>)</div><div class="line">        content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取金额变动</span></div><div class="line">    money = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[4]/span/text()'</span>)</div><div class="line">    money_list.append(money[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取交易状态</span></div><div class="line">    state = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[6]/p[1]/text()'</span>)</div><div class="line">    state_list.append(state[<span class="number">0</span>].strip())</div></pre></td></tr></table></figure></p>
+<h1 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h1><p>将存储到list中的数据，存储到mysql中</p>
+<p>部分代码如下:<br><figure class="highlight perl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 连接数据库</span></div><div class="line">db = MySQLdb.connect(<span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'数据库密码'</span>, <span class="string">'数据库'</span>)</div><div class="line"><span class="comment"># 获取游标</span></div><div class="line">cursor = db.cursor()</div><div class="line"><span class="keyword">for</span> i in range(<span class="number">20</span>):</div><div class="line">    <span class="comment"># sql 插入语句，插入到alipay表中</span></div><div class="line">    sql = <span class="string">"INSERT IGNORE INTO alipay(NUMBER,DATE,CONTENT,MONEY,STATE) VALUES ('%s','%s','%s','%s','%s')"</span> % (number_list[i],time_list[i],content_list[i],money_list[i],state_list[i])</div><div class="line">    try:</div><div class="line">        <span class="comment"># 执行sql语句</span></div><div class="line">        cursor.execute(sql)</div><div class="line">        <span class="comment"># 提交到数据库</span></div><div class="line">        db.commit()</div><div class="line">    except:</div><div class="line">        <span class="comment"># 失败回滚</span></div><div class="line">        db.rollback()</div><div class="line"><span class="comment"># 关闭数据库连接</span></div><div class="line">db.close()</div></pre></td></tr></table></figure></p>
+<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><p>将代码进行了封装，增加了对加载cookie后登录状态的确认</p>
+<p>完整代码如下:<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding=utf-8 -*-</span></div><div class="line">from selenium import webdriver</div><div class="line">import time</div><div class="line">import json</div><div class="line">import requests</div><div class="line">from lxml import etree</div><div class="line">import MySQLdb</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AlipaySpider</span>(<span class="title">object</span>):</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.headers = &#123;<span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36'</span>&#125;</div><div class="line">        <span class="keyword">self</span>.session = requests.Session()</div><div class="line">        <span class="keyword">self</span>.session.headers = <span class="keyword">self</span>.headers</div><div class="line">        <span class="keyword">self</span>.number_list = []</div><div class="line">        <span class="keyword">self</span>.time_list = []</div><div class="line">        <span class="keyword">self</span>.content_list = []</div><div class="line">        <span class="keyword">self</span>.money_list = []</div><div class="line">        <span class="keyword">self</span>.state_list = []</div><div class="line"></div><div class="line">    <span class="comment"># 用webdriver 获取cookie</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_cookies</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        driver = webdriver.Firefox()</div><div class="line">        driver.maximize_window()</div><div class="line">        driver.get(<span class="string">'https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Fmy.alipay.com%2Fportal%2Fi.htm'</span>)</div><div class="line">        <span class="comment"># 等待2秒</span></div><div class="line">        time.sleep(<span class="number">2</span>)</div><div class="line">        driver.find_element_by_id(<span class="string">'J-input-user'</span>).send_keys(<span class="string">'你的支付宝用户名'</span>)</div><div class="line">        driver.find_element_by_name(<span class="string">'password_rsainput'</span>).send_keys(<span class="string">'你的支付宝密码'</span>)</div><div class="line">        driver.find_element_by_id(<span class="string">'J-login-btn'</span>).click()</div><div class="line">        <span class="comment"># 获取cookie，并保存到本地</span></div><div class="line">        cookies = driver.get_cookies()</div><div class="line">        with open(<span class="string">'cookies'</span>,<span class="string">'w'</span>) as <span class="symbol">f:</span></div><div class="line">            json.dump(cookies, f)</div><div class="line">        f.close()</div><div class="line">        driver.close()</div><div class="line"></div><div class="line">    <span class="comment"># 设置cookie</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_cookies</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">    <span class="comment"># 从文件中获取cookie</span></div><div class="line">        with open(<span class="string">'cookies'</span>, <span class="string">'r'</span>) as <span class="symbol">f:</span></div><div class="line">            cookies = json.load(f)</div><div class="line">        <span class="comment"># 将json存储的cookie 转化为dict，并更新session的coookie</span></div><div class="line">        <span class="keyword">for</span> cookie <span class="keyword">in</span> <span class="symbol">cookies:</span></div><div class="line">            c = &#123;cookie[<span class="string">'name'</span>]: cookie[<span class="string">'value'</span>]&#125;</div><div class="line">            <span class="keyword">self</span>.session.cookies.update(c)</div><div class="line"></div><div class="line">    <span class="comment"># 判断是否已经登录</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">aready_login</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.set_cookies()</div><div class="line">        html_code = <span class="keyword">self</span>.session.get(<span class="string">'https://custweb.alipay.com/account/index.htm'</span>,allow_redirects=False).status_code</div><div class="line">        <span class="keyword">if</span> html_code == <span class="number">200</span>:</div><div class="line">            <span class="keyword">return</span> True</div><div class="line">        <span class="symbol">else:</span></div><div class="line">            <span class="keyword">return</span> False</div><div class="line"></div><div class="line">    <span class="comment"># 获取数据</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_data</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="comment"># 获取交易记录界面</span></div><div class="line">        html = <span class="keyword">self</span>.session.get(<span class="string">'https://consumeprod.alipay.com/record/standard.htm'</span>)</div><div class="line">        <span class="comment"># 用lxml解析html</span></div><div class="line">        selector= etree.HTML(html.text)</div><div class="line">        <span class="comment"># 获取最近20个交易数据</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">21</span>):</div><div class="line">            <span class="comment"># 获取流水号</span></div><div class="line">            number = selector.xpath(<span class="string">'//*[@id="J-tradeNo-'</span>+str(i)+<span class="string">'"]/@title'</span>)</div><div class="line">            <span class="keyword">self</span>.number_list.append(number[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取交易时间</span></div><div class="line">            time = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[2]/p[1]/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.time_list.append(time[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取具体内容</span></div><div class="line">            <span class="symbol">try:</span></div><div class="line">                <span class="comment"># 交易成功的内容</span></div><div class="line">                content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/a/text()'</span>)</div><div class="line">                <span class="keyword">self</span>.content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">            <span class="symbol">except:</span></div><div class="line">                <span class="comment"># 交易失败的内容</span></div><div class="line">                content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/text()'</span>)</div><div class="line">                <span class="keyword">self</span>.content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取金额变动</span></div><div class="line">            money = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[4]/span/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.money_list.append(money[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取交易状态</span></div><div class="line">            state = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[6]/p[1]/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.state_list.append(state[<span class="number">0</span>].strip())</div><div class="line"></div><div class="line">    <span class="comment"># 存储数据</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_data</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="comment"># 连接数据库</span></div><div class="line">        db = MySQLdb.connect(<span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'密码'</span>, <span class="string">'数据库'</span>)</div><div class="line">        <span class="comment"># 获取游标</span></div><div class="line">        cursor = db.cursor()</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">20</span>):</div><div class="line">            <span class="comment"># sql 插入语句，插入到alipay表中</span></div><div class="line">            sql = <span class="string">"INSERT IGNORE INTO alipay(NUMBER,DATE,CONTENT,MONEY,STATE) VALUES ('%s','%s','%s','%s','%s')"</span> % (<span class="keyword">self</span>.number_list[i],<span class="keyword">self</span>.time_list[i],<span class="keyword">self</span>.content_list[i],<span class="keyword">self</span>.money_list[i],<span class="keyword">self</span>.state_list[i])</div><div class="line">            <span class="symbol">try:</span></div><div class="line">                <span class="comment"># 执行sql语句</span></div><div class="line">                cursor.execute(sql)</div><div class="line">                <span class="comment"># 提交到数据库</span></div><div class="line">                db.commit()</div><div class="line">            <span class="symbol">except:</span></div><div class="line">                <span class="comment"># 失败回滚</span></div><div class="line">                db.rollback()</div><div class="line">        <span class="comment"># 关闭数据库连接</span></div><div class="line">        db.close()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">total_crawl</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.save_cookies() <span class="comment"># 保存cookie</span></div><div class="line">        <span class="keyword">self</span>.set_cookies() <span class="comment"># 设置cookie</span></div><div class="line">        <span class="keyword">self</span>.get_data() <span class="comment"># 爬取数据</span></div><div class="line">        <span class="keyword">self</span>.save_data() <span class="comment"># 保存数据</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">crawl</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.get_data() <span class="comment"># 爬取数据</span></div><div class="line">        <span class="keyword">self</span>.save_data() <span class="comment"># 保存数据</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name_<span class="number">_</span> == <span class="string">"__main__"</span>:</div><div class="line">    spider = AlipaySpider()</div><div class="line">    <span class="keyword">if</span> spider.aready_login() == <span class="symbol">True:</span></div><div class="line">        spider.crawl()</div><div class="line">    <span class="symbol">else:</span></div><div class="line">        spider.total_crawl()</div></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过本次的学习，有2点不足之处。</p>
+<ol>
+<li>有时由于多次访问支付宝页面，导致登录页面有验证码，这样获取到的cookie就不成功了，需要再次请求，直到没有验证码，才能获取到cookie</li>
+<li>数据爬取时，只能爬取到最近的20笔交易记录</li>
+</ol>
+<p>遗留问题会在学习更多之后解决</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/24/selenium-模拟登录163/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -312,8 +479,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -356,7 +523,7 @@
 </ul>
 <h1 id="下载-webdriver并配置"><a href="#下载-webdriver并配置" class="headerlink" title="下载 webdriver并配置"></a>下载 webdriver并配置</h1><p>webdriver 下载连接如下</p>
 <ul>
-<li><a href="https://sites.google.com/a/chromium.org/chromedriver/downloads" target="_blank" rel="external">chrome</a></li>
+<li><a href="https://sites.google.com/a/chromium.org/chromedriver/downloads" target="_blank" rel="external">Chrome</a></li>
 <li><a href="https://github.com/mozilla/geckodriver/release" target="_blank" rel="external">Firefox</a></li>
 </ul>
 <p>将下载好的webdriver 放入到/usr/bin/目录下，这样做的目的是调用时可以不指明路径</p>
@@ -426,7 +593,7 @@
               
                 
                 <a class="post-title-link" href="/2017/05/11/知乎模拟登录/" itemprop="url">
-                  python 模拟登录知乎
+                  Python 模拟登录知乎
                 </a>
               
             
@@ -465,8 +632,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -505,14 +672,14 @@
             <p>之前模拟登录pixiv时不需要验证码，知乎需要验证码，于是写这篇文章记录我学习模拟登录知乎的过程</p>
 <hr>
 <h1 id="需要的工具及环境"><a href="#需要的工具及环境" class="headerlink" title="需要的工具及环境"></a>需要的工具及环境</h1><ul>
-<li>python 3.6</li>
+<li>Python 3.6</li>
 <li>requests 库</li>
 <li>pillow 库</li>
 <li>re 库</li>
-<li>chrome 浏览器</li>
+<li>Chrome 浏览器</li>
 </ul>
 <h1 id="尝试登录"><a href="#尝试登录" class="headerlink" title="尝试登录"></a>尝试登录</h1><p>打开知乎<a href="https://www.zhihu.com" target="_blank" rel="external">登录页面</a>,按F12-&gt;选中‘preserve log’,登录界面如图，点击提交，获得post数据和网址<br><img src="/images/python模拟登录知乎1.png" alt=""></p>
-<p>我们可以获得获得post url 地址<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">post_url</span> = <span class="string">'https://www.zhihu.com/login/phone_num'</span> # post请求提交的URL</div></pre></td></tr></table></figure></p>
+<p>我们可以获得获得post URL 地址<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">post_url</span> = <span class="string">'https://www.zhihu.com/login/phone_num'</span> # post请求提交的URL</div></pre></td></tr></table></figure></p>
 <p>从post提交的数据看我们需要4个参数’xsrf’,’captcha’,’password’,’phone_num’，所以，我们构建提交的数据字典如下<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">datas</span> = &#123;</div><div class="line">        <span class="string">'_xsrf'</span>: <span class="string">''</span>,</div><div class="line">        <span class="string">'password'</span>: <span class="string">'your_password'</span>,</div><div class="line">        <span class="string">'captcha'</span>: <span class="string">''</span>,</div><div class="line">        <span class="string">'phone_num'</span>: <span class="string">'your_phonenumber'</span></div><div class="line">        &#125;</div></pre></td></tr></table></figure></p>
 <h1 id="获取验证码"><a href="#获取验证码" class="headerlink" title="获取验证码"></a>获取验证码</h1><p>右键点击验证码，查看源码，看到”img“标签下，src属性存在验证码的网址，鼠标移到src属性上即可查看源网址<br><img src="/images/python模拟登录知乎2.png" alt=""></p>
 <p>r 是当前时间的时间戳单位为毫秒，具体获得代码如下：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="attr">time</span> = str(int(time.time() * <span class="number">1000</span>))</div><div class="line"><span class="attr">captcha_url</span> = <span class="string">'http://www.zhihu.com/captcha.gif?r='</span> + time + <span class="string">"&amp;type=login"</span></div><div class="line"><span class="attr">captcha</span> = s.get(captcha_url)</div></pre></td></tr></table></figure></p>
@@ -625,8 +792,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -662,13 +829,13 @@
       
         
           
-            <p>记录学习python模拟登录的过程</p>
+            <p>记录学习Python模拟登录的过程</p>
 <hr>
 <h1 id="需要的工具及运行环境"><a href="#需要的工具及运行环境" class="headerlink" title="需要的工具及运行环境"></a>需要的工具及运行环境</h1><ul>
-<li>python 3.6</li>
+<li>Python 3.6</li>
 <li>requests 库</li>
 <li>re 库</li>
-<li>chrome 浏览器</li>
+<li>Chrome 浏览器</li>
 </ul>
 <hr>
 <h1 id="分析URL"><a href="#分析URL" class="headerlink" title="分析URL"></a>分析URL</h1><p>进入<a href="https://www.pixiv.net/" target="_blank" rel="external">pixiv官网</a>,<br>按F12 开打开发者工具界面，点击官网上的LOGIN 按钮,<br>跳转到<a href="https://accounts.pixiv.net/login?lang=en&amp;source=pc&amp;view_type=page&amp;ref=wwwtop_accounts_index" target="_blank" rel="external">登录界面</a>,<br>开发者工具界面依次选择“Network”-&gt;“Doc”，左侧Name栏有请求信息。<br><img src="/images/python模拟登录pixiv1.png" alt=""><br>如图可知三个重要信息：</p>
@@ -761,7 +928,7 @@
               
                 
                 <a class="post-title-link" href="/2017/05/03/python爬虫爬取暴走漫画官网GIF图/" itemprop="url">
-                  python爬虫爬取暴走漫画官网GIF图
+                  Python爬虫爬取暴走漫画官网GIF图
                 </a>
               
             
@@ -800,8 +967,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -838,10 +1005,10 @@
         
           
             <h1 id="爬取需要工具及运行环境"><a href="#爬取需要工具及运行环境" class="headerlink" title="爬取需要工具及运行环境"></a>爬取需要工具及运行环境</h1><ul>
-<li>python3.6</li>
-<li>beautifulsoup4 库</li>
+<li>Python3.6</li>
+<li>BeautifulSoup4 库</li>
 <li>urllib.request 库</li>
-<li>chrome 浏览器</li>
+<li>Chrome 浏览器</li>
 </ul>
 <hr>
 <h1 id="分析需要解析的的URL"><a href="#分析需要解析的的URL" class="headerlink" title="分析需要解析的的URL"></a>分析需要解析的的URL</h1><ul>
@@ -922,7 +1089,7 @@
               
                 
                 <a class="post-title-link" href="/2017/05/02/python-爬虫爬取暴走漫画官网-jpg图片/" itemprop="url">
-                  python 爬虫爬取暴走漫画官网 jpg图片
+                  Python 爬虫爬取暴走漫画官网 jpg图片
                 </a>
               
             
@@ -961,8 +1128,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-爬虫/" itemprop="url" rel="index">
-                    <span itemprop="name">python 爬虫</span>
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
                   </a>
                 </span>
 
@@ -999,10 +1166,10 @@
         
           
             <h1 id="爬取需要工具及运行环境"><a href="#爬取需要工具及运行环境" class="headerlink" title="爬取需要工具及运行环境"></a>爬取需要工具及运行环境</h1><ul>
-<li>python3.6</li>
-<li>beautifulsoup4 库</li>
+<li>Python3.6</li>
+<li>BeautifulSoup4 库</li>
 <li>urllib.request 库</li>
-<li>chrome 浏览器</li>
+<li>Chrome 浏览器</li>
 </ul>
 <hr>
 <h1 id="分析需要解析的的URL"><a href="#分析需要解析的的URL" class="headerlink" title="分析需要解析的的URL"></a>分析需要解析的的URL</h1><ul>
@@ -1083,7 +1250,7 @@
               
                 
                 <a class="post-title-link" href="/2017/03/14/hexo1/" itemprop="url">
-                  github+hexo 搭建个人博客
+                  GitHub Pages+Hexo 搭建个人博客
                 </a>
               
             
@@ -1122,8 +1289,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hexo/" itemprop="url" rel="index">
-                    <span itemprop="name">hexo</span>
+                  <a href="/categories/Hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">Hexo</span>
                   </a>
                 </span>
 
@@ -1168,9 +1335,9 @@
 </ul>
 <h2 id="下载和配置node-js"><a href="#下载和配置node-js" class="headerlink" title="下载和配置node.js"></a>下载和配置node.js</h2><ul>
 <li><p><a href="https://nodejs.org/zh-cn/" target="_blank" rel="external">node.js官网</a></p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -xvJf <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64.tar.xz </div><div class="line">$ cd <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64/bin/</div><div class="line">$ sudo ln -s <span class="keyword">node</span> <span class="title">/usr</span>/local/bin </div><div class="line">$ sudo ln -s npm /usr/local/bin</div></pre></td></tr></table></figure>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -xvJf <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64.tar.xz</div><div class="line">$ cd <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64/bin/</div><div class="line">$ sudo ln -s <span class="keyword">node</span> <span class="title">/usr</span>/local/bin</div><div class="line">$ sudo ln -s npm /usr/local/bin</div></pre></td></tr></table></figure>
 </li>
-<li><p>配置环境变量 </p>
+<li><p>配置环境变量</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo <span class="keyword">vi</span> /etc/<span class="keyword">profile</span>/</div></pre></td></tr></table></figure>
 <p>-加入</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export PATH=<span class="variable">$PATH</span><span class="symbol">:/usr/local/bin/npm</span></div><div class="line">export PARH=<span class="variable">$PATH</span><span class="symbol">:/usr/local/bin/node</span></div></pre></td></tr></table></figure>
@@ -1189,7 +1356,7 @@
 </ul>
 <hr>
 <h1 id="二-配置github"><a href="#二-配置github" class="headerlink" title="二.配置github"></a>二.配置github</h1><ol>
-<li><p>新建repository </p>
+<li><p>新建repository</p>
 <p><img src="/images/1.png" alt="1"></p>
 <blockquote>
 <p>Repository name 中填入”用户名.github.io”<br>如果邮箱为zhangsan@xxx.com，那么填入zhangsan.github.io</p>
@@ -1210,7 +1377,7 @@
 <li><p>修改_config.yml配置文件</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>vi hexo/_config.yml</div></pre></td></tr></table></figure>
 <p>-在最后一行加入</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">deploy</span>: </div><div class="line">  <span class="attribute">type</span>: git</div><div class="line">  <span class="attribute">repository</span>: git<span class="variable">@github</span>.<span class="attribute">com</span>:用户名/用户名.github.io #用户名为自己的</div><div class="line">  <span class="attribute">branch</span>: master</div></pre></td></tr></table></figure>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">deploy</span>:</div><div class="line">  <span class="attribute">type</span>: git</div><div class="line">  <span class="attribute">repository</span>: git<span class="variable">@github</span>.<span class="attribute">com</span>:用户名/用户名.github.io #用户名为自己的</div><div class="line">  <span class="attribute">branch</span>: master</div></pre></td></tr></table></figure>
 </li>
 <li><p>部署</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo g <span class="_">-d</span></div></pre></td></tr></table></figure>
@@ -1282,7 +1449,7 @@
               
                 
                 <a class="post-title-link" href="/2017/03/13/kali-linux-configuration/" itemprop="url">
-                  kali linux安装后的初步配置
+                  Kali Linux安装后的初步配置
                 </a>
               
             
@@ -1321,8 +1488,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kali-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">kali linux</span>
+                  <a href="/categories/Kali-Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Kali Linux</span>
                   </a>
                 </span>
 
@@ -1366,8 +1533,8 @@
 </blockquote>
 </li>
 </ul>
-<h1 id="对linux-进行更新"><a href="#对linux-进行更新" class="headerlink" title="对linux 进行更新"></a>对linux 进行更新</h1><ul>
-<li>对安装的kali linux 清除安装包缓存、更新apt-get源文件、软件升级和发行版升级执行命令<figure class="highlight processing"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># apt-<span class="built_in">get</span> clean &amp;&amp; apt-<span class="built_in">get</span> update &amp;&amp; apt-<span class="built_in">get</span> upgrade &amp;&amp; apt-<span class="built_in">get</span> <span class="built_in">dist</span>-upgrade -y</div></pre></td></tr></table></figure>
+<h1 id="对Linux-进行更新"><a href="#对Linux-进行更新" class="headerlink" title="对Linux 进行更新"></a>对Linux 进行更新</h1><ul>
+<li>对安装的Kali Linux 清除安装包缓存、更新apt-get源文件、软件升级和发行版升级执行命令<figure class="highlight processing"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># apt-<span class="built_in">get</span> clean &amp;&amp; apt-<span class="built_in">get</span> update &amp;&amp; apt-<span class="built_in">get</span> upgrade &amp;&amp; apt-<span class="built_in">get</span> <span class="built_in">dist</span>-upgrade -y</div></pre></td></tr></table></figure>
 </li>
 </ul>
 <h1 id="解决没有声音问题"><a href="#解决没有声音问题" class="headerlink" title="解决没有声音问题"></a>解决没有声音问题</h1><ul>
@@ -1388,7 +1555,7 @@
 <figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># chsh -s /bin/bash user</span></div></pre></td></tr></table></figure>
 </li>
 </ul>
-<h1 id="安装filezilla-客户端"><a href="#安装filezilla-客户端" class="headerlink" title="安装filezilla 客户端"></a>安装filezilla 客户端</h1><figure class="highlight armasm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># apt-<span class="meta">get</span> install filezilla filezilla-<span class="meta">common</span> -y</div></pre></td></tr></table></figure>
+<h1 id="安装fileZilla-客户端"><a href="#安装fileZilla-客户端" class="headerlink" title="安装fileZilla 客户端"></a>安装fileZilla 客户端</h1><figure class="highlight armasm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># apt-<span class="meta">get</span> install filezilla filezilla-<span class="meta">common</span> -y</div></pre></td></tr></table></figure>
 <h1 id="安装Recordmydesktop桌面记录工具和Remina远程客户端"><a href="#安装Recordmydesktop桌面记录工具和Remina远程客户端" class="headerlink" title="安装Recordmydesktop桌面记录工具和Remina远程客户端"></a>安装Recordmydesktop桌面记录工具和Remina远程客户端</h1><figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># apt-get install gtk-recordmydesktop recordmydesktop remmina -y</span></div></pre></td></tr></table></figure>
 <h1 id="启动用户自动登录"><a href="#启动用户自动登录" class="headerlink" title="启动用户自动登录"></a>启动用户自动登录</h1><figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># vi /etc/lightdm/lightdm.conf</span></div></pre></td></tr></table></figure>
 <blockquote>
@@ -1497,7 +1664,7 @@
               
                 
                 <a class="post-title-link" href="/2017/03/13/xps-install-kali-linux/" itemprop="url">
-                  xps13 安装kali linux
+                  xps13 安装Kali Linux
                 </a>
               
             
@@ -1536,8 +1703,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kali-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">kali linux</span>
+                  <a href="/categories/Kali-Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Kali Linux</span>
                   </a>
                 </span>
 
@@ -1576,7 +1743,7 @@
             <h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><ul>
 <li>Dell XPS 13-9360</li>
 <li>支持 UEFI的至少8G的U盘</li>
-<li>官网下载镜像文件<a href="https://www.kali.org/downloads/" target="_blank" rel="external">kali 官网</a> </li>
+<li>官网下载镜像文件<a href="https://www.kali.org/downloads/" target="_blank" rel="external">kali 官网</a></li>
 <li>Window系统下载 Win32 Disk Imager</li>
 <li>用Win32 Disk Imager 制作U盘启动盘</li>
 </ul>
@@ -1665,7 +1832,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1687,7 +1854,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

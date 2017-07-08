@@ -1,0 +1,766 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="学习笔记,Python,爬虫,selinum,MySQL,xpath,cookie," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文仅学习交流使用，记录学习用webdriver模拟登录支付宝保存cookie，再用requests.session()加载cookie并用Xpath获取订单信息，将订单存储到MySQL数据库中的过程。
+本机主要运行环境及库
+Arch Linux
+webdriver(Chrome或者FireFox)
+Python3.6
+selenium 库
+json 库
+requests 库
+lxml 库
+MyS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python爬虫模拟登录支付宝并获取订单信息">
+<meta property="og:url" content="http://yoursite.com/2017/07/07/获取支付宝订单，并存储的数据库/index.html">
+<meta property="og:site_name" content="Nameless">
+<meta property="og:description" content="本文仅学习交流使用，记录学习用webdriver模拟登录支付宝保存cookie，再用requests.session()加载cookie并用Xpath获取订单信息，将订单存储到MySQL数据库中的过程。
+本机主要运行环境及库
+Arch Linux
+webdriver(Chrome或者FireFox)
+Python3.6
+selenium 库
+json 库
+requests 库
+lxml 库
+MyS">
+<meta property="og:image" content="http://yoursite.com/images/alipay1.gif">
+<meta property="og:updated_time" content="2017-07-08T03:03:44.285Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python爬虫模拟登录支付宝并获取订单信息">
+<meta name="twitter:description" content="本文仅学习交流使用，记录学习用webdriver模拟登录支付宝保存cookie，再用requests.session()加载cookie并用Xpath获取订单信息，将订单存储到MySQL数据库中的过程。
+本机主要运行环境及库
+Arch Linux
+webdriver(Chrome或者FireFox)
+Python3.6
+selenium 库
+json 库
+requests 库
+lxml 库
+MyS">
+<meta name="twitter:image" content="http://yoursite.com/images/alipay1.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/07/07/获取支付宝订单，并存储的数据库/"/>
+
+
+
+
+
+  <title> Python爬虫模拟登录支付宝并获取订单信息 | Nameless </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nameless</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">If you want something you've never had, then you've got to do something you've never done.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/07/获取支付宝订单，并存储的数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="The One">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nameless">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python爬虫模拟登录支付宝并获取订单信息
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-07T18:19:46+08:00">
+                2017-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python-爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">Python 爬虫</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文仅学习交流使用，记录学习用webdriver模拟登录支付宝保存cookie，再用requests.session()加载cookie并用Xpath获取订单信息，将订单存储到MySQL数据库中的过程。</p>
+<h1 id="本机主要运行环境及库"><a href="#本机主要运行环境及库" class="headerlink" title="本机主要运行环境及库"></a>本机主要运行环境及库</h1><ul>
+<li>Arch Linux</li>
+<li>webdriver(Chrome或者FireFox)</li>
+<li>Python3.6</li>
+<li>selenium 库</li>
+<li>json 库</li>
+<li>requests 库</li>
+<li>lxml 库</li>
+<li>MySQLdb 库</li>
+</ul>
+<p>确保本机具有或类似的运行条件，webdriver 安装方法在<a href="https://zjhdota.github.io/2017/06/24/selenium-%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95163/" target="_blank" rel="external">selenium模拟登录163邮箱</a>中已经提到。<br>selenium、json、requests、lxml库都可以通过python的包管理工具PyPI安装。<br>Python2.x 的版本通过pip安装mysql-python 来连接MySQL数据库，Python3.x则需要通过pip安装mysqlclient来实现Python和MySQL的连接。</p>
+<h1 id="获取cookie"><a href="#获取cookie" class="headerlink" title="获取cookie"></a>获取cookie</h1><p>我们用webdriver登录支付宝来获取cookie，并用json使数据持久化。<br>首先获取支付宝登录页面的URL:<br><a href="https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Flab.alipay.com%2Fuser%2Fi.htm" target="_blank" rel="external">https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Flab.alipay.com%2Fuser%2Fi.htm</a><br>通过Chrome开发者工具获取用户名文本框的id属性、密码文本框的name属性、和登录按钮的id属性<br><img src="/images/alipay1.gif" alt=""></p>
+<p>部分代码如下:<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">driver = webdriver.Firefox()</div><div class="line">driver.maximize_window()</div><div class="line">driver.<span class="built_in">get</span>(<span class="string">'https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Fmy.alipay.com%2Fportal%2Fi.htm'</span>)</div><div class="line"><span class="comment"># 等待2秒页面加载完毕</span></div><div class="line"><span class="built_in">time</span>.sleep(<span class="number">2</span>)</div><div class="line">driver.find_element_by_id(<span class="string">'J-input-user'</span>).send_keys(<span class="string">'你的支付宝用户名'</span>) <span class="comment"># 输入用户名</span></div><div class="line">driver.find_element_by_name(<span class="string">'password_rsainput'</span>).send_keys(<span class="string">'你的支付宝密码'</span>) <span class="comment"># 输入密码</span></div><div class="line">driver.find_element_by_id(<span class="string">'J-login-btn'</span>).click() <span class="comment"># 点击登录按钮</span></div><div class="line"><span class="comment"># 获取cookie，并保存到本地</span></div><div class="line">cookies = driver.get_cookies()</div><div class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">'cookies'</span>,<span class="string">'w'</span>) <span class="keyword">as</span> f:</div><div class="line">    json.dump(cookies, f)</div><div class="line">f.<span class="built_in">close</span>()</div><div class="line">driver.<span class="built_in">close</span>()</div></pre></td></tr></table></figure></p>
+<h1 id="设置cookie"><a href="#设置cookie" class="headerlink" title="设置cookie"></a>设置cookie</h1><p>要用requests.session()请求网页进行爬取，所以我们就直接加载本地的cookie来请求网页</p>
+<p>部分代码如下:<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function">with <span class="title">open</span>(<span class="params"><span class="string">'cookies'</span>, <span class="string">'r'</span></span>) <span class="keyword">as</span> f:</span></div><div class="line">    cookies = json.load(f)</div><div class="line">    <span class="meta"># 将json存储的cookie 转化为dict，并更新session的coookie</span></div><div class="line">    <span class="keyword">for</span> cookie <span class="keyword">in</span> cookies:</div><div class="line">        c = &#123;cookie[<span class="string">'name'</span>]: cookie[<span class="string">'value'</span>]&#125;</div><div class="line">        session.cookies.update(c)</div></pre></td></tr></table></figure></p>
+<h1 id="获取数据"><a href="#获取数据" class="headerlink" title="获取数据"></a>获取数据</h1><p>采用lxml来解析网页，然后通过xpath来找到相应的数据，最后存储到各自list中，为的是之后存储到数据库方便</p>
+<p>部分代码如下：<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 获取交易记录界面</span></div><div class="line">html = self.session.<span class="built_in">get</span>(<span class="string">'https://consumeprod.alipay.com/record/standard.htm'</span>)</div><div class="line"><span class="comment"># 用lxml解析html</span></div><div class="line">selector= etree.HTML(html.<span class="keyword">text</span>)</div><div class="line"><span class="comment"># 获取最近20个交易数据</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">21</span>):</div><div class="line">    <span class="comment"># 获取流水号</span></div><div class="line">    <span class="built_in">number</span> = selector.xpath(<span class="string">'//*[@id="J-tradeNo-'</span>+str(i)+<span class="string">'"]/@title'</span>)</div><div class="line">    number_list.append(<span class="built_in">number</span>[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取交易时间</span></div><div class="line">    <span class="built_in">time</span> = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[2]/p[1]/text()'</span>)</div><div class="line">    time_list.append(<span class="built_in">time</span>[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取具体内容</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 交易成功的内容</span></div><div class="line">        content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/a/text()'</span>)</div><div class="line">        content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">    except:</div><div class="line">         <span class="comment"># 交易失败的内容</span></div><div class="line">        content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/text()'</span>)</div><div class="line">        content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取金额变动</span></div><div class="line">    money = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[4]/span/text()'</span>)</div><div class="line">    money_list.append(money[<span class="number">0</span>].strip())</div><div class="line">    <span class="comment"># 获取交易状态</span></div><div class="line">    state = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[6]/p[1]/text()'</span>)</div><div class="line">    state_list.append(state[<span class="number">0</span>].strip())</div></pre></td></tr></table></figure></p>
+<h1 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h1><p>将存储到list中的数据，存储到mysql中</p>
+<p>部分代码如下:<br><figure class="highlight perl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 连接数据库</span></div><div class="line">db = MySQLdb.connect(<span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'数据库密码'</span>, <span class="string">'数据库'</span>)</div><div class="line"><span class="comment"># 获取游标</span></div><div class="line">cursor = db.cursor()</div><div class="line"><span class="keyword">for</span> i in range(<span class="number">20</span>):</div><div class="line">    <span class="comment"># sql 插入语句，插入到alipay表中</span></div><div class="line">    sql = <span class="string">"INSERT IGNORE INTO alipay(NUMBER,DATE,CONTENT,MONEY,STATE) VALUES ('%s','%s','%s','%s','%s')"</span> % (number_list[i],time_list[i],content_list[i],money_list[i],state_list[i])</div><div class="line">    try:</div><div class="line">        <span class="comment"># 执行sql语句</span></div><div class="line">        cursor.execute(sql)</div><div class="line">        <span class="comment"># 提交到数据库</span></div><div class="line">        db.commit()</div><div class="line">    except:</div><div class="line">        <span class="comment"># 失败回滚</span></div><div class="line">        db.rollback()</div><div class="line"><span class="comment"># 关闭数据库连接</span></div><div class="line">db.close()</div></pre></td></tr></table></figure></p>
+<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><p>将代码进行了封装，增加了对加载cookie后登录状态的确认</p>
+<p>完整代码如下:<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding=utf-8 -*-</span></div><div class="line">from selenium import webdriver</div><div class="line">import time</div><div class="line">import json</div><div class="line">import requests</div><div class="line">from lxml import etree</div><div class="line">import MySQLdb</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AlipaySpider</span>(<span class="title">object</span>):</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.headers = &#123;<span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36'</span>&#125;</div><div class="line">        <span class="keyword">self</span>.session = requests.Session()</div><div class="line">        <span class="keyword">self</span>.session.headers = <span class="keyword">self</span>.headers</div><div class="line">        <span class="keyword">self</span>.number_list = []</div><div class="line">        <span class="keyword">self</span>.time_list = []</div><div class="line">        <span class="keyword">self</span>.content_list = []</div><div class="line">        <span class="keyword">self</span>.money_list = []</div><div class="line">        <span class="keyword">self</span>.state_list = []</div><div class="line"></div><div class="line">    <span class="comment"># 用webdriver 获取cookie</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_cookies</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        driver = webdriver.Firefox()</div><div class="line">        driver.maximize_window()</div><div class="line">        driver.get(<span class="string">'https://auth.alipay.com/login/index.htm?goto=https%3A%2F%2Fmy.alipay.com%2Fportal%2Fi.htm'</span>)</div><div class="line">        <span class="comment"># 等待2秒</span></div><div class="line">        time.sleep(<span class="number">2</span>)</div><div class="line">        driver.find_element_by_id(<span class="string">'J-input-user'</span>).send_keys(<span class="string">'你的支付宝用户名'</span>)</div><div class="line">        driver.find_element_by_name(<span class="string">'password_rsainput'</span>).send_keys(<span class="string">'你的支付宝密码'</span>)</div><div class="line">        driver.find_element_by_id(<span class="string">'J-login-btn'</span>).click()</div><div class="line">        <span class="comment"># 获取cookie，并保存到本地</span></div><div class="line">        cookies = driver.get_cookies()</div><div class="line">        with open(<span class="string">'cookies'</span>,<span class="string">'w'</span>) as <span class="symbol">f:</span></div><div class="line">            json.dump(cookies, f)</div><div class="line">        f.close()</div><div class="line">        driver.close()</div><div class="line"></div><div class="line">    <span class="comment"># 设置cookie</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_cookies</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">    <span class="comment"># 从文件中获取cookie</span></div><div class="line">        with open(<span class="string">'cookies'</span>, <span class="string">'r'</span>) as <span class="symbol">f:</span></div><div class="line">            cookies = json.load(f)</div><div class="line">        <span class="comment"># 将json存储的cookie 转化为dict，并更新session的coookie</span></div><div class="line">        <span class="keyword">for</span> cookie <span class="keyword">in</span> <span class="symbol">cookies:</span></div><div class="line">            c = &#123;cookie[<span class="string">'name'</span>]: cookie[<span class="string">'value'</span>]&#125;</div><div class="line">            <span class="keyword">self</span>.session.cookies.update(c)</div><div class="line"></div><div class="line">    <span class="comment"># 判断是否已经登录</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">aready_login</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.set_cookies()</div><div class="line">        html_code = <span class="keyword">self</span>.session.get(<span class="string">'https://custweb.alipay.com/account/index.htm'</span>,allow_redirects=False).status_code</div><div class="line">        <span class="keyword">if</span> html_code == <span class="number">200</span>:</div><div class="line">            <span class="keyword">return</span> True</div><div class="line">        <span class="symbol">else:</span></div><div class="line">            <span class="keyword">return</span> False</div><div class="line"></div><div class="line">    <span class="comment"># 获取数据</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_data</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="comment"># 获取交易记录界面</span></div><div class="line">        html = <span class="keyword">self</span>.session.get(<span class="string">'https://consumeprod.alipay.com/record/standard.htm'</span>)</div><div class="line">        <span class="comment"># 用lxml解析html</span></div><div class="line">        selector= etree.HTML(html.text)</div><div class="line">        <span class="comment"># 获取最近20个交易数据</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">21</span>):</div><div class="line">            <span class="comment"># 获取流水号</span></div><div class="line">            number = selector.xpath(<span class="string">'//*[@id="J-tradeNo-'</span>+str(i)+<span class="string">'"]/@title'</span>)</div><div class="line">            <span class="keyword">self</span>.number_list.append(number[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取交易时间</span></div><div class="line">            time = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[2]/p[1]/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.time_list.append(time[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取具体内容</span></div><div class="line">            <span class="symbol">try:</span></div><div class="line">                <span class="comment"># 交易成功的内容</span></div><div class="line">                content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/a/text()'</span>)</div><div class="line">                <span class="keyword">self</span>.content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">            <span class="symbol">except:</span></div><div class="line">                <span class="comment"># 交易失败的内容</span></div><div class="line">                content = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[3]/p[1]/text()'</span>)</div><div class="line">                <span class="keyword">self</span>.content_list.append(content[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取金额变动</span></div><div class="line">            money = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[4]/span/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.money_list.append(money[<span class="number">0</span>].strip())</div><div class="line">            <span class="comment"># 获取交易状态</span></div><div class="line">            state = selector.xpath(<span class="string">'//*[@id="J-item-'</span>+str(i)+<span class="string">'"]/td[6]/p[1]/text()'</span>)</div><div class="line">            <span class="keyword">self</span>.state_list.append(state[<span class="number">0</span>].strip())</div><div class="line"></div><div class="line">    <span class="comment"># 存储数据</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_data</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="comment"># 连接数据库</span></div><div class="line">        db = MySQLdb.connect(<span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'密码'</span>, <span class="string">'数据库'</span>)</div><div class="line">        <span class="comment"># 获取游标</span></div><div class="line">        cursor = db.cursor()</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">20</span>):</div><div class="line">            <span class="comment"># sql 插入语句，插入到alipay表中</span></div><div class="line">            sql = <span class="string">"INSERT IGNORE INTO alipay(NUMBER,DATE,CONTENT,MONEY,STATE) VALUES ('%s','%s','%s','%s','%s')"</span> % (<span class="keyword">self</span>.number_list[i],<span class="keyword">self</span>.time_list[i],<span class="keyword">self</span>.content_list[i],<span class="keyword">self</span>.money_list[i],<span class="keyword">self</span>.state_list[i])</div><div class="line">            <span class="symbol">try:</span></div><div class="line">                <span class="comment"># 执行sql语句</span></div><div class="line">                cursor.execute(sql)</div><div class="line">                <span class="comment"># 提交到数据库</span></div><div class="line">                db.commit()</div><div class="line">            <span class="symbol">except:</span></div><div class="line">                <span class="comment"># 失败回滚</span></div><div class="line">                db.rollback()</div><div class="line">        <span class="comment"># 关闭数据库连接</span></div><div class="line">        db.close()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">total_crawl</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.save_cookies() <span class="comment"># 保存cookie</span></div><div class="line">        <span class="keyword">self</span>.set_cookies() <span class="comment"># 设置cookie</span></div><div class="line">        <span class="keyword">self</span>.get_data() <span class="comment"># 爬取数据</span></div><div class="line">        <span class="keyword">self</span>.save_data() <span class="comment"># 保存数据</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">crawl</span><span class="params">(<span class="keyword">self</span>)</span></span>:</div><div class="line">        <span class="keyword">self</span>.get_data() <span class="comment"># 爬取数据</span></div><div class="line">        <span class="keyword">self</span>.save_data() <span class="comment"># 保存数据</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name_<span class="number">_</span> == <span class="string">"__main__"</span>:</div><div class="line">    spider = AlipaySpider()</div><div class="line">    <span class="keyword">if</span> spider.aready_login() == <span class="symbol">True:</span></div><div class="line">        spider.crawl()</div><div class="line">    <span class="symbol">else:</span></div><div class="line">        spider.total_crawl()</div></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过本次的学习，有2点不足之处。</p>
+<ol>
+<li>有时由于多次访问支付宝页面，导致登录页面有验证码，这样获取到的cookie就不成功了，需要再次请求，直到没有验证码，才能获取到cookie</li>
+<li>数据爬取时，只能爬取到最近的20笔交易记录</li>
+</ol>
+<p>遗留问题会在学习更多之后解决</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/学习笔记/" rel="tag"># 学习笔记</a>
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/爬虫/" rel="tag"># 爬虫</a>
+          
+            <a href="/tags/selinum/" rel="tag"># selinum</a>
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+            <a href="/tags/xpath/" rel="tag"># xpath</a>
+          
+            <a href="/tags/cookie/" rel="tag"># cookie</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/24/selenium-模拟登录163/" rel="next" title="selenium 模拟登录163邮箱">
+                <i class="fa fa-chevron-left"></i> selenium 模拟登录163邮箱
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="The One" />
+          <p class="site-author-name" itemprop="name">The One</p>
+           
+              <p class="site-description motion-element" itemprop="description">your life. your learning. your way.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本机主要运行环境及库"><span class="nav-number">1.</span> <span class="nav-text">本机主要运行环境及库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#获取cookie"><span class="nav-number">2.</span> <span class="nav-text">获取cookie</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置cookie"><span class="nav-number">3.</span> <span class="nav-text">设置cookie</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#获取数据"><span class="nav-number">4.</span> <span class="nav-text">获取数据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储数据"><span class="nav-number">5.</span> <span class="nav-text">存储数据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#完整代码"><span class="nav-number">6.</span> <span class="nav-text">完整代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">The One</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+  
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+</body>
+</html>

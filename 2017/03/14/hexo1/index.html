@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="学习笔记,hexo," />
+  <meta name="keywords" content="学习笔记,Hexo,GitHub Pages," />
 
 
 
@@ -93,7 +93,7 @@
 
 配置本机全局git环境-确保已有github帐号12$ git config --global user.email &quot;you@example.com&quot;$ git co">
 <meta property="og:type" content="article">
-<meta property="og:title" content="github+hexo 搭建个人博客">
+<meta property="og:title" content="GitHub Pages+Hexo 搭建个人博客">
 <meta property="og:url" content="http://yoursite.com/2017/03/14/hexo1/index.html">
 <meta property="og:site_name" content="Nameless">
 <meta property="og:description" content="写这篇文章主要是为了记录我搭建个人博客的过程，途中经历很多困难并查询了许多资料，最终功夫不服有心人，经过一天的时间终于弄好了，废话不多说下面开搞。
@@ -103,9 +103,9 @@
 配置本机全局git环境-确保已有github帐号12$ git config --global user.email &quot;you@example.com&quot;$ git co">
 <meta property="og:image" content="http://yoursite.com/images/1.png">
 <meta property="og:image" content="http://yoursite.com/images/2.jpg">
-<meta property="og:updated_time" content="2017-03-15T08:55:49.959Z">
+<meta property="og:updated_time" content="2017-07-08T03:05:02.432Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="github+hexo 搭建个人博客">
+<meta name="twitter:title" content="GitHub Pages+Hexo 搭建个人博客">
 <meta name="twitter:description" content="写这篇文章主要是为了记录我搭建个人博客的过程，途中经历很多困难并查询了许多资料，最终功夫不服有心人，经过一天的时间终于弄好了，废话不多说下面开搞。
 
 一.环境搭建安装 git1$ sudo apt-get install git
@@ -145,7 +145,7 @@
 
 
 
-  <title> github+hexo 搭建个人博客 | Nameless </title>
+  <title> GitHub Pages+Hexo 搭建个人博客 | Nameless </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -285,7 +285,7 @@
             
             
               
-                github+hexo 搭建个人博客
+                GitHub Pages+Hexo 搭建个人博客
               
             
           </h1>
@@ -323,8 +323,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hexo/" itemprop="url" rel="index">
-                    <span itemprop="name">hexo</span>
+                  <a href="/categories/Hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">Hexo</span>
                   </a>
                 </span>
 
@@ -367,9 +367,9 @@
 </ul>
 <h2 id="下载和配置node-js"><a href="#下载和配置node-js" class="headerlink" title="下载和配置node.js"></a>下载和配置node.js</h2><ul>
 <li><p><a href="https://nodejs.org/zh-cn/" target="_blank" rel="external">node.js官网</a></p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -xvJf <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64.tar.xz </div><div class="line">$ cd <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64/bin/</div><div class="line">$ sudo ln -s <span class="keyword">node</span> <span class="title">/usr</span>/local/bin </div><div class="line">$ sudo ln -s npm /usr/local/bin</div></pre></td></tr></table></figure>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -xvJf <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64.tar.xz</div><div class="line">$ cd <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">10.0</span>-linux-x64/bin/</div><div class="line">$ sudo ln -s <span class="keyword">node</span> <span class="title">/usr</span>/local/bin</div><div class="line">$ sudo ln -s npm /usr/local/bin</div></pre></td></tr></table></figure>
 </li>
-<li><p>配置环境变量 </p>
+<li><p>配置环境变量</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo <span class="keyword">vi</span> /etc/<span class="keyword">profile</span>/</div></pre></td></tr></table></figure>
 <p>-加入</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export PATH=<span class="variable">$PATH</span><span class="symbol">:/usr/local/bin/npm</span></div><div class="line">export PARH=<span class="variable">$PATH</span><span class="symbol">:/usr/local/bin/node</span></div></pre></td></tr></table></figure>
@@ -388,7 +388,7 @@
 </ul>
 <hr>
 <h1 id="二-配置github"><a href="#二-配置github" class="headerlink" title="二.配置github"></a>二.配置github</h1><ol>
-<li><p>新建repository </p>
+<li><p>新建repository</p>
 <p><img src="/images/1.png" alt="1"></p>
 <blockquote>
 <p>Repository name 中填入”用户名.github.io”<br>如果邮箱为zhangsan@xxx.com，那么填入zhangsan.github.io</p>
@@ -409,7 +409,7 @@
 <li><p>修改_config.yml配置文件</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>vi hexo/_config.yml</div></pre></td></tr></table></figure>
 <p>-在最后一行加入</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">deploy</span>: </div><div class="line">  <span class="attribute">type</span>: git</div><div class="line">  <span class="attribute">repository</span>: git<span class="variable">@github</span>.<span class="attribute">com</span>:用户名/用户名.github.io #用户名为自己的</div><div class="line">  <span class="attribute">branch</span>: master</div></pre></td></tr></table></figure>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">deploy</span>:</div><div class="line">  <span class="attribute">type</span>: git</div><div class="line">  <span class="attribute">repository</span>: git<span class="variable">@github</span>.<span class="attribute">com</span>:用户名/用户名.github.io #用户名为自己的</div><div class="line">  <span class="attribute">branch</span>: master</div></pre></td></tr></table></figure>
 </li>
 <li><p>部署</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo g <span class="_">-d</span></div></pre></td></tr></table></figure>
@@ -443,7 +443,9 @@
           
             <a href="/tags/学习笔记/" rel="tag"># 学习笔记</a>
           
-            <a href="/tags/hexo/" rel="tag"># hexo</a>
+            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+          
+            <a href="/tags/GitHub-Pages/" rel="tag"># GitHub Pages</a>
           
         </div>
       
@@ -456,8 +458,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/03/13/kali-linux-configuration/" rel="next" title="kali linux安装后的初步配置">
-                <i class="fa fa-chevron-left"></i> kali linux安装后的初步配置
+              <a href="/2017/03/13/kali-linux-configuration/" rel="next" title="Kali Linux安装后的初步配置">
+                <i class="fa fa-chevron-left"></i> Kali Linux安装后的初步配置
               </a>
             
           </div>
@@ -466,8 +468,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/05/02/python-爬虫爬取暴走漫画官网-jpg图片/" rel="prev" title="python 爬虫爬取暴走漫画官网 jpg图片">
-                python 爬虫爬取暴走漫画官网 jpg图片 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/05/02/python-爬虫爬取暴走漫画官网-jpg图片/" rel="prev" title="Python 爬虫爬取暴走漫画官网 jpg图片">
+                Python 爬虫爬取暴走漫画官网 jpg图片 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -540,7 +542,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -562,7 +564,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
